@@ -2,23 +2,43 @@ const Config = require('./config/Config');
 const CashInStrategy = require('./CashInStrategy');
 const CashOutNaturalStrategy = require('./CashOutNaturalStrategy');
 const CashOutJuridicalStrategy = require('./CashOutJuridicalStrategy');
+const { OperationType, UserType } = require('./constants');
 
 class OperationFactory {
-   static async createStrategy(type, userType) {
-       if (type === 'cash_in') {
-           const config = await Config.getCashInConfig();
-           return new CashInStrategy(config);
-       }
-       if (type === 'cash_out' && userType === 'natural') {
-           const config = await Config.getCashOutNaturalConfig();
-           return new CashOutNaturalStrategy(config);
-       }
-       if (type === 'cash_out' && userType === 'juridical') {
-           const config = await Config.getCashOutJuridicalConfig();
-           return new CashOutJuridicalStrategy(config);
-       }
-       throw new Error('Invalid operation type or user type');
-   }
+    static strategiesMap = new Map([
+        [OperationType.CASH_IN, async () => {
+            const config = await Config.getCashInConfig();
+            return new CashInStrategy(config);
+        }],
+        [OperationType.CASH_OUT, new Map([
+            [UserType.NATURAL, async () => {
+                const config = await Config.getCashOutNaturalConfig();
+                return new CashOutNaturalStrategy(config);
+            }],
+            [UserType.JURIDICAL, async () => {
+                const config = await Config.getCashOutJuridicalConfig();
+                return new CashOutJuridicalStrategy(config);
+            }]
+        ])]
+    ]);
+
+    static async createStrategy(type, userType) {
+        const strategy = this.strategiesMap.get(type);
+
+        if (!strategy) {
+            throw new Error('Invalid operation type');
+        }
+
+        if (type === OperationType.CASH_OUT) {
+            const userStrategy = strategy.get(userType);
+            if (!userStrategy) {
+                throw new Error('Invalid user type for cash out operation');
+            }
+            return userStrategy();
+        }
+
+        return strategy();
+    }
 }
 
 module.exports = OperationFactory;
