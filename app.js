@@ -25,7 +25,7 @@ class App {
     }
 
     async processOperation(operation) {
-        const {user_id, user_type, type, date, operation: {amount}} = operation;
+        const { user_id, user_type, type, date, operation: { amount } } = operation;
         const user = this.getUser(user_id, user_type);
         const currentWeek = App.getWeekNumber(new Date(operation.date));
 
@@ -36,7 +36,8 @@ class App {
             ? Math.max(0, user.cashOutThisWeek - 1000)
             : 0;
 
-        const strategy = await OperationFactory.createStrategy(type, user_type);
+        // Create strategy dynamically based on operation type and user type
+        const strategy = await OperationFactory.createStrategy(type, user_type, this.config);
         fee = strategy.calculate(amount, exceededAmount);
 
         return fee.toFixed(2);
@@ -64,3 +65,5 @@ class App {
     } else {
     console.error('Please provide a path to the input file.');
 }
+
+module.exports = App;

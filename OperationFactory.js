@@ -1,7 +1,7 @@
 const Config = require('./config/Config');
-const CashInStrategy = require('./CashInStrategy');
-const CashOutNaturalStrategy = require('./CashOutNaturalStrategy');
-const CashOutJuridicalStrategy = require('./CashOutJuridicalStrategy');
+const CashInStrategy = require('./strategies/CashInStrategy');
+const CashOutNaturalStrategy = require('./strategies/CashOutNaturalStrategy');
+const CashOutJuridicalStrategy = require('./strategies/CashOutJuridicalStrategy');
 const { OperationType, UserType } = require('./constants');
 
 class OperationFactory {
