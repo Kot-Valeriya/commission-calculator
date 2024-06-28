@@ -1,7 +1,7 @@
 const fs = require('fs').promises;
-const OperationFactory = require('./OperationFactory');
-const User = require('./User');
-const {OperationType, UserType} = require("./constants");
+const OperationFactory = require('./strategies/OperationFactory');
+const User = require('./entities/User');
+const {OperationType, UserType} = require("./constants/constants");
 
 class App {
     constructor(filePath) {
